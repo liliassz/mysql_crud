@@ -1,0 +1,18 @@
+{
+  "name": "database_testing",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mysql2": "^2.3.0",
+    "nodemon": "^3.1.0"
+  },
+  "scripts": {
+    "start": "npm start && echo \"EIniciando...\"",
+    "dev": "nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

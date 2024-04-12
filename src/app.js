@@ -1,9 +1,9 @@
 const express = require('express');
-const connect = require('./src/database/connect');
-const userRoutes = require('./src/database/controllers/usersController');
+const connect = require('./database/connect');
+const userRoutes = require('./database/controllers/usersController');
 require('dotenv').config();
 
-const sever = express();
+const sever = express(); 
 
 // Define o prefixo '/users' para todas as rotas relacionadas aos usuários
 sever.use('/users', userRoutes);

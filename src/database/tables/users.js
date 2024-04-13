@@ -3,7 +3,6 @@
  * @param {Object} connection - Variável de conexão com o banco de dados.
  * @returns {Promise<void>} - Retorna uma Promise vazia.
  */
-
 const createTable = async (connection) => {
   try {
     // Executa uma consulta SQL para verificar se a tabela de usuários já existe no banco de dados

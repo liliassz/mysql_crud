@@ -12,6 +12,7 @@ const router = express.Router();
  * @param {string} req.params.id - O ID do usuário a ser buscado.
  * @returns {Object} - Os detalhes do usuário encontrado.
  */
+
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const connection = await pool.getConnection();
@@ -23,7 +24,7 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({ message: 'Usuário não encontrado' });
         }
         // Retorna os detalhes do usuário encontrado.
-        return res.json(rows[0]); 
+        return res.json(rows[0]);
         // O código abaixo nunca será executado, pois a função já retornou na linha anterior.
         // return res.status(500).json({ message: 'Erro ao buscar usuário', error: error.message });
     } finally {
@@ -37,6 +38,7 @@ router.get('/:id', async (req, res) => {
  * @param {} - Nenhum parâmetro é necessário.
  * @returns {Array} - Uma lista de todos os usuários.
  */
+
 router.get('/', async (req, res) => {
     const connection = await pool.getConnection();
     try {
@@ -62,6 +64,7 @@ router.get('/', async (req, res) => {
  * @param {...} req.body - Outros campos opcionais para o usuário.
  * @returns {Object} - Mensagem de sucesso ou erro.
  */
+
 router.post('/', async (req, res) => {
     // Extrai os dados do corpo da requisição.
     const { first_name, last_name, email, password, date_of_birth, phone, gender, profile_picture, bio, status, city, street, postal_code, state, country, nationality, occupation, company, website, social_media, interests, skills, education, languages } = req.body;
@@ -73,15 +76,15 @@ router.post('/', async (req, res) => {
     const connection = await pool.getConnection();
     try {
         // Insere os dados do novo usuário na tabela do banco de dados.
-        await connection.query('INSERT INTO users (first_name, last_name, email, password, date_of_birth, phone, gender, profile_picture, bio, status, city, street, postal_code, state, country, nationality, occupation, company, website, social_media, interests, skills, education, languages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        await connection.query('INSERT INTO users (first_name, last_name, email, password, date_of_birth, phone, gender, profile_picture, bio, status, city, street, postal_code, state, country, nationality, occupation, company, website, social_media, interests, skills, education, languages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [first_name, last_name, email, password, date_of_birth, phone, gender, profile_picture, bio, status, city, street, postal_code, state, country, nationality, occupation, company, website, social_media, interests, skills, education, languages]);
         // Retorna uma mensagem de sucesso após a inserção do usuário.
         return res.status(201).json({ message: 'Usuário criado com sucesso' });
     } catch (error) {
         // Se ocorrer um erro durante a inserção, retorna um erro 500.
         return res.status(500).json({ message: 'Erro ao criar usuário', error: error.message });
-    } finally {
         // Libera a conexão com o pool de conexões após o uso.
+    } finally {
         connection.release();
     }
 });
@@ -96,6 +99,7 @@ router.post('/', async (req, res) => {
  * @param {...} req.body - Outros campos opcionais para o usuário.
  * @returns {Object} - Mensagem de sucesso ou erro.
  */
+
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     // Extrai os dados do corpo da requisição.
@@ -126,6 +130,7 @@ router.put('/:id', async (req, res) => {
  * @param {string} req.params.id - O ID do usuário a ser deletado.
  * @returns {Object} - Mensagem de sucesso ou erro.
  */
+
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     const connection = await pool.getConnection();
@@ -143,4 +148,4 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-module.exports = router;
+module.exports = router

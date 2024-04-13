@@ -7,7 +7,7 @@ const pool = require('../config/config');
 // Cria uma instância do roteador do Express.
 const router = express.Router();
 
-/**
+/** 
  * @description Rota para buscar um usuário pelo ID.
  * @param {string} req.params.id - O ID do usuário a ser buscado.
  * @returns {Object} - Os detalhes do usuário encontrado.

@@ -1,2 +1,29 @@
-node_modules
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de backup criados por editores de texto
+*~
+
+# Arquivos de compilação
+*.o
+*.out
+*.exe
+
+# Arquivos de logs
+*.log
+
+# Arquivos temporários
+*.tmp
+
+# Arquivos específicos de IDEs e editores
+.vscode/
+.idea/
+
+# Dependências geradas
+/node_modules
+/bower_components
+
+# Arquivos de configuração local
 .env
+

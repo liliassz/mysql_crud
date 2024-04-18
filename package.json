@@ -1,19 +1,46 @@
 {
-  "name": "database_testing",
+  "name": "mysql_crud",
   "version": "1.0.0",
+  "description": "A simple MySQL CRUD application using Node.js and Express",
   "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liliassz/mysql_crud.git"
+  },
+  "keywords": [
+    "nodejs",
+    "mysql",
+    "crud",
+    "express",
+    "rest-api"
+  ],
+  "author": "Elias Souza <elias.souza.es609@gmail.com>",
+  "contributors": [
+    {
+      "name": "Outro Dev",
+      "email": "devemail@example.com"
+    }
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liliassz/mysql_crud/issues"
+  },
+  "homepage": "https://github.com/liliassz/mysql_crud#readme",
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mysql2": "^2.3.0",
+    "mysql2": "^2.3.0"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.0"
   },
-  "scripts": {
-      "start": "node src/app.js",
-      "dev":"nodemon src/app.js"
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "private": false
 }

@@ -5,7 +5,7 @@ const express = require('express');
 const connect = require('./database/connect');
 
 // Importa as rotas relacionadas aos usuários.
-const userRoutes = require('./database/controllers/usersController');
+const userRoutes = require('./controllers/usersController');
 
 // Carrega as variáveis de ambiente do arquivo .env.
 require('dotenv').config();

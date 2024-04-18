@@ -131,21 +131,7 @@ router.put('/:id', async (req, res) => {
  * @returns {Object} - Mensagem de sucesso ou erro.
  */
 
-router.delete('/:id', async (req, res) => {
-    const { id } = req.params;
-    const connection = await pool.getConnection();
-    try {
-        // Deleta o usuário com o ID especificado da tabela do banco de dados.
-        await connection.query('DELETE FROM users WHERE id = ?', [id]);
-        // Retorna uma mensagem de sucesso após a exclusão do usuário.
-        return res.json({ message: 'Usuário deletado com sucesso' });
-    } catch (error) {
-        // Se ocorrer um erro durante a exclusão, retorna um erro 500.
-        return res.status(500).json({ message: 'Erro ao deletar usuário', error: error.message });
-    } finally {
-        // Libera a conexão com o pool de conexões após o uso.
-        connection.release();
-    }
-});
+
+
 
 module.exports = router

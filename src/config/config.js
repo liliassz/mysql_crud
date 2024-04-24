@@ -15,6 +15,7 @@ const pool = mysql.createPool({
   user: process.env.MYSQL_USER,  // Nome do usuário do banco de dados MySQL
   password: process.env.MYSQL_PASSWORD,  // Senha do usuário do banco de dados MySQL
   database: process.env.MYSQL_DB,  // Nome do banco de dados MySQL
+  port: process.env.MYSQL_PORT
 });
 
 // Exporta o pool de conexões para ser utilizado em outros módulos

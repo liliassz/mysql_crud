@@ -32,28 +32,53 @@ router.get('/:id', async (req, res) => {
         connection.release();
     }
 });
-
 /**
- * @description Rota para buscar todos os usuários.
+ * @description Rota para buscar todos os usuários do sistema.
  * @param {} - Nenhum parâmetro é necessário.
- * @returns {Array} - Uma lista de todos os usuários.
- */
+ * @returns {Array} - Uma lista contendo todos os usuários e seus dados completos, incluindo informações de endereço e mídia social.
+**/
 
 router.get('/', async (req, res) => {
     const connection = await pool.getConnection();
     try {
-        // Realiza uma consulta SQL para buscar todos os usuários na tabela.
-        const [rows] = await connection.query('SELECT * FROM users');
-        // Retorna a lista de usuários encontrados.
-        return res.json(rows);
+      // Consulta principal para buscar usuários da tabela 'users'
+      const [users] = await connection.query('SELECT * FROM users');
+  
+      // Lista para armazenar os dados completos dos usuários
+      const completeUsers = [];
+  
+      // Loop para processar cada usuário
+      for (const user of users) {
+        const userId = user.id;
+  
+        // Consulta para buscar endereço do usuário
+        const [address] = await connection.query('SELECT * FROM addresses WHERE user_id = ?', [userId]);
+  
+        // Consulta para buscar informações sociais do usuário
+        const [socialInfo] = await connection.query('SELECT * FROM social_info WHERE user_id = ?', [userId]);
+  
+        // Combina dados de todas as tabelas em um único objeto
+        const completeUser = {
+          ...user, // Inclui todos os campos da tabela 'users'
+          address: address[0] || {}, // Inclui dados de endereço (ou objeto vazio se não encontrado)
+          socialInfo: socialInfo[0] || {}, // Inclui informações de mídia social (ou objeto vazio se não encontrado)
+        };
+  
+        // Adiciona o usuário completo à lista
+        completeUsers.push(completeUser);
+      }
+  
+      // Retorna a lista de usuários com todos os dados
+      return res.json(completeUsers);
     } catch (error) {
-        // Se ocorrer um erro durante a consulta, retorna um erro 500.
-        return res.status(500).json({ message: 'Erro ao buscar usuários', error: error.message });
+      // Manipulação de erros
+      console.error('Erro ao buscar usuários:', error);
+      return res.status(500).json({ message: 'Erro ao buscar usuários', error: error.message });
     } finally {
-        // Libera a conexão com o pool de conexões após o uso.
-        connection.release();
+      // Libera a conexão com o pool de conexões
+      connection.release();
     }
-});
+  });
 
 /**
  * @description Rota para criar um novo usuário.

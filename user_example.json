@@ -1,0 +1,30 @@
+{
+    "id": "1",
+    "username": "joao123",
+    "first_name": "João",
+    "last_name": "Silva",
+    "email": "joao@example.com",
+    "password": "senha123",
+    "age": "19",
+    "phone": "+5511998765432",
+    "gender": "Homem",
+    "date_of_birth": "21/10/2004",
+    "created_at": "21/10/2024 as 10:00PM",
+    "adress": {
+        "street": "Rua Principal",
+        "city": "São Paulo",
+        "state": "SP",
+        "postal_code": "01234-567",
+        "country": "Brazil"
+    },
+    "social": {
+        "profile_picture": "profile_pic.jpg",
+        "bio": "Sou um desenvolvedor web",
+        "status": "Active",
+        "website": "www.meusite.com",
+        "occupation": "Desenvolvedor Web",
+        "company": "Empresa XYZ",
+        "skills": ["javascript", "python", "java"],
+        "linguage": "portugues"
+    }
+}

@@ -12,38 +12,42 @@ const createTable = async (connection) => {
     if (rows.length === 0) {
       // Query para criar a tabela de usuários com seus respectivos campos e tipos de dados
       const createTableQuery = `
-      CREATE SCHEMA IF NOT EXISTS \`users\`;
-
-      CREATE TABLE IF NOT EXISTS \`users\`.\`users\` (
-          \`id\` INT AUTO_INCREMENT PRIMARY KEY,
-          \`first_name\` VARCHAR(100) NOT NULL,
-          \`last_name\` VARCHAR(100) NOT NULL,
-          \`email\` VARCHAR(255) NOT NULL UNIQUE,
-          \`password\` VARCHAR(255) NOT NULL,
-          \`date_of_birth\` DATE,
-          \`phone\` VARCHAR(20),
-          \`gender\` ENUM('Male', 'Female', 'Other'),
-          \`profile_picture\` VARCHAR(255),
-          \`bio\` TEXT,
-          \`status\` ENUM('Active', 'Inactive') DEFAULT 'Active',
-          \`city\` VARCHAR(100),
-          \`street\` VARCHAR(255),
-          \`postal_code\` VARCHAR(20),
-          \`state\` VARCHAR(100),
-          \`country\` VARCHAR(100),
-          \`nationality\` VARCHAR(100),
-          \`occupation\` VARCHAR(100),
-          \`company\` VARCHAR(100),
-          \`website\` VARCHAR(255),
-          \`social_media\` JSON,
-          \`interests\` JSON,
-          \`skills\` JSON,
-          \`education\` JSON,
-          \`languages\` JSON,
-          \`created_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      CREATE TABLE IF NOT EXISTS \`usuarios\`.\`users\` (
+        id INT PRIMARY KEY,
+        username VARCHAR(255) UNIQUE,
+        first_name VARCHAR(255),
+        last_name VARCHAR(255),
+        email VARCHAR(255) UNIQUE,
+        password VARCHAR(255),
+        age INT,
+        phone VARCHAR(20),
+        gender VARCHAR(10),
+        date_of_birth DATE,
+        created_at DATETIME
       );
-`;
 
+      CREATE TABLE IF NOT EXISTS \`usuarios\`.\`addresses\` (
+        user_id INT PRIMARY KEY,
+        street VARCHAR(255),
+        city VARCHAR(255),
+        state VARCHAR(2),
+        postal_code VARCHAR(10),
+        country VARCHAR(50),
+        FOREIGN KEY (user_id) REFERENCES \`usuarios\`.\`users\`(id)
+      );
+
+      CREATE TABLE IF NOT EXISTS \`usuarios\`.\`social_info\` (
+        user_id INT PRIMARY KEY,
+        profile_picture VARCHAR(255),
+        bio TEXT,
+        status VARCHAR(20),
+        website VARCHAR(255),
+        occupation VARCHAR(255),
+        company VARCHAR(255),
+        language VARCHAR(50),
+        FOREIGN KEY (user_id) REFERENCES \`usuarios\`.\`users\`(id)
+      );
+      `;
 
       // Executa a query para criar a tabela
       await connection.query(createTableQuery);

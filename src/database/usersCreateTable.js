@@ -12,35 +12,38 @@ const createTable = async (connection) => {
     if (rows.length === 0) {
       // Query para criar a tabela de usuários com seus respectivos campos e tipos de dados
       const createTableQuery = `
-        CREATE TABLE users (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          first_name VARCHAR(100) NOT NULL,
-          last_name VARCHAR(100) NOT NULL,
-          email VARCHAR(255) NOT NULL UNIQUE,
-          password VARCHAR(255) NOT NULL,
-          date_of_birth DATE,
-          phone VARCHAR(20),
-          gender ENUM('Male', 'Female', 'Other'),
-          profile_picture VARCHAR(255),
-          bio TEXT,
-          status ENUM('Active', 'Inactive') DEFAULT 'Active',
-          city VARCHAR(100),
-          street VARCHAR(255),
-          postal_code VARCHAR(20),
-          state VARCHAR(100),
-          country VARCHAR(100),
-          nationality VARCHAR(100),
-          occupation VARCHAR(100),
-          company VARCHAR(100),
-          website VARCHAR(255),
-          social_media JSON,
-          interests JSON,
-          skills JSON,
-          education JSON,
-          languages JSON,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-      `;
+      CREATE SCHEMA IF NOT EXISTS \`users\`;
+
+      CREATE TABLE IF NOT EXISTS \`users\`.\`users\` (
+          \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+          \`first_name\` VARCHAR(100) NOT NULL,
+          \`last_name\` VARCHAR(100) NOT NULL,
+          \`email\` VARCHAR(255) NOT NULL UNIQUE,
+          \`password\` VARCHAR(255) NOT NULL,
+          \`date_of_birth\` DATE,
+          \`phone\` VARCHAR(20),
+          \`gender\` ENUM('Male', 'Female', 'Other'),
+          \`profile_picture\` VARCHAR(255),
+          \`bio\` TEXT,
+          \`status\` ENUM('Active', 'Inactive') DEFAULT 'Active',
+          \`city\` VARCHAR(100),
+          \`street\` VARCHAR(255),
+          \`postal_code\` VARCHAR(20),
+          \`state\` VARCHAR(100),
+          \`country\` VARCHAR(100),
+          \`nationality\` VARCHAR(100),
+          \`occupation\` VARCHAR(100),
+          \`company\` VARCHAR(100),
+          \`website\` VARCHAR(255),
+          \`social_media\` JSON,
+          \`interests\` JSON,
+          \`skills\` JSON,
+          \`education\` JSON,
+          \`languages\` JSON,
+          \`created_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+`;
+
 
       // Executa a query para criar a tabela
       await connection.query(createTableQuery);

@@ -68,11 +68,17 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { username, first_name, last_name, email, password, age, date_of_birth, phone, gender, profile_picture, bio, status, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
+  const { username, first_name, last_name, email, password, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
   const connection = await pool.getConnection();
 
   if (![username, first_name, last_name, email, password].every(Boolean)) {
     return res.status(400).json({ message: 'Nome de usuário, nome, sobrenome, email e senha são obrigatórios' });
+  }else if (username.length > 10) {
+    return res.status(400).json({ message: 'Seu nome de usuário ultrapassou o limite de 10 caracteres.' });
+  } else if (first_name.length > 10) {
+    return res.status(400).json({ message: 'Seu nome ultrapassou o limite de 10 caracteres.' });
+  } else if (last_name.length > 10) {
+    return res.status(400).json({ message: 'Seu sobrenome ultrapassou o limite de 10 caracteres.' });
   }
 
   try {
@@ -92,9 +98,11 @@ router.post('/', async (req, res) => {
   } catch (error) {
     if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.username')) {
       return res.status(400).json({ message: 'Nome de usuário já cadastrado.' });
-    }else if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.email')) {
+    }
+    if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.email')) {
       return res.status(400).json({ message: 'Email já cadastrado.' });
     }
+
     return res.status(500).json({ message: 'Erro ao criar usuário', error: error.message });
   } finally {
     connection.release();
@@ -104,17 +112,30 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
 
-  const { username, first_name, last_name, email, password, age, phone, gender, date_of_birth} = req.body;
+  const { username, first_name, last_name, email, password, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
+
+  if (![username, first_name, last_name, email, password].every(Boolean)) {
+    return res.status(400).json({ message: 'Nome de usuário, nome, sobrenome, email e senha são obrigatórios' });
+  }else if (username.length > 10) {
+    return res.status(400).json({ message: 'Seu nome de usuário ultrapassou o limite de 10 caracteres.' });
+  } else if (first_name.length > 10) {
+    return res.status(400).json({ message: 'Seu nome ultrapassou o limite de 10 caracteres.' });
+  } else if (last_name.length > 10) {
+    return res.status(400).json({ message: 'Seu sobrenome ultrapassou o limite de 10 caracteres.' });
+  }
 
   const connection = await pool.getConnection();
   try {
-    
-    const userData = {username, first_name, last_name, email, password, age, phone, gender, date_of_birth, id};
-    await connection.query('UPDATE users SET ? WHERE id = ?', [userData, id]);
+    await connection.query('UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, password = ?, age = ?, date_of_birth = ?, phone = ?, gender = ? WHERE id = ?', [username, first_name, last_name, email, password, age, date_of_birth, phone, gender, id]);
 
-    
+    await connection.query('UPDATE addresses SET street = ?, city = ?, state = ?, postal_code = ?, country = ? WHERE user_id = ?', [street, city, state, postal_code, country, id]);
+
+    await connection.query('UPDATE social_info SET profile_picture = ?, bio = ?, website = ?, occupation = ?, company = ?, skill = ?, language = ? WHERE user_id = ?', [profile_picture, bio, website, occupation, company, skill, language, id]);
+
     return res.json({ message: 'Usuário atualizado com sucesso' });
+    
   } catch (error) {
+    console.error(error)
     if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.username')) {
       return res.status(400).json({ message: 'Nome de usuário já cadastrado.' });
     }else if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.email')) {
@@ -127,22 +148,13 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   const connection = await pool.getConnection();
   try {
-    const sql = 'SELECT * FROM users WHERE id = ?';
-
-    const [results] = await connection.query(sql, [id]);
-    if (results.length > 0) {
-      await connection.query('DELETE FROM users WHERE id = ?', [id]);
-      return res.json({ message: 'Usuário deletado com sucesso' });
-    } else {
-      console.log('O usuário não existe.');
-      return res.status(404).json({ message: 'Usuário não encontrado' });
-    }
-
+    // Exclui o usuário e os registros associados na tabela de endereços de forma automática
+    await connection.query('DELETE FROM users WHERE id = ?', [id]);
+    return res.json({ message: 'Usuário deletado com sucesso' });
   } catch (error) {
     console.error('Erro ao deletar usuário:', error);
     return res.status(500).json({ message: 'Erro ao deletar usuário', error: error.message });

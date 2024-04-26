@@ -1,4 +1,4 @@
-const pool = require('../config/config'); /// Importa o módulo responsável por configurar a conexão com o banco de dados
+const pool = require('../config/dbConfig'); /// Importa o módulo responsável por configurar a conexão com o banco de dados
 
 /**
  * @description Função assíncrona para conectar ao banco de dados e verificar/criar a tabela de usuários.

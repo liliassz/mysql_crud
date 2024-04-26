@@ -5,7 +5,6 @@ const connect = require('./database/connect'); // Importa a função de conexão
 const cors = require('cors'); //cors 
 require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env.
 
-
 // Cria uma instância do servidor Express.
 const server = express();
 

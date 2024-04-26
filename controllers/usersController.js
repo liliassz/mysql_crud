@@ -1,5 +1,5 @@
 const express = require('express'); // Importa o módulo 'express', que é um framework web para Node.js.
-const pool = require('../config/config'); // Importa o pool de conexão com o banco de dados configurado.
+const pool = require('../config/dbConfig'); // Importa o pool de conexão com o banco de dados configurado.
 const router = express.Router(); // Cria uma instância do roteador do Express.
 
 router.get('/:id', async (req, res) => {

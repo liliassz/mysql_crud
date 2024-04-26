@@ -1,5 +1,7 @@
+-- Cria o esquema `usuarios` se ele não existir, definindo o conjunto de caracteres padrão como utf8
 CREATE SCHEMA IF NOT EXISTS `usuarios` DEFAULT CHARACTER SET utf8 ;
 
+-- Cria a tabela `users` para armazenar informações básicas do usuário
 CREATE TABLE `users` (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(10) UNIQUE,
@@ -15,6 +17,7 @@ CREATE TABLE `users` (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Cria a tabela `address` para armazenar endereços dos usuários com chave estrangeira referenciando `users`
 CREATE TABLE `address` (
     user_id INT PRIMARY KEY,
     street VARCHAR(255),
@@ -25,6 +28,7 @@ CREATE TABLE `address` (
     FOREIGN KEY (user_id) REFERENCES `users`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Cria a tabela `social_info` para armazenar informações sociais e profissionais dos usuários
 CREATE TABLE `social_info` (
     user_id INT PRIMARY KEY,
     profile_picture VARCHAR(255),
@@ -38,6 +42,7 @@ CREATE TABLE `social_info` (
     FOREIGN KEY (user_id) REFERENCES `users`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Cria uma visualização `user_full_details` que combina dados das tabelas `users`, `address`, e `social_info`
 CREATE VIEW `user_full_details` AS
 SELECT 
     u.id,

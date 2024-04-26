@@ -17,7 +17,7 @@ router.get('/:id', async (req, res) => {
     for (const user of users) {
       const userId = user.id;
 
-      const [address] = await connection.query('SELECT * FROM addresses WHERE user_id = ?', [userId]);
+      const [address] = await connection.query('SELECT * FROM address WHERE user_id = ?', [userId]);
 
       const [socialInfo] = await connection.query('SELECT * FROM social_info WHERE user_id = ?', [userId]);
 
@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
     for (const user of users) {
       const userId = user.id;
 
-      const [address] = await connection.query('SELECT * FROM addresses WHERE user_id = ?', [userId]);
+      const [address] = await connection.query('SELECT * FROM address WHERE user_id = ?', [userId]);
 
       const [socialInfo] = await connection.query('SELECT * FROM social_info WHERE user_id = ?', [userId]);
 
@@ -90,7 +90,7 @@ router.post('/', async (req, res) => {
     const socialInfoData = { user_id: userId, profile_picture, bio, website, occupation, company, skill, language };
 
     await Promise.all([
-      connection.query('INSERT INTO addresses SET ?', addressData),
+      connection.query('INSERT INTO address SET ?', addressData),
       connection.query('INSERT INTO social_info SET ?', socialInfoData)
     ]);
 
@@ -114,7 +114,7 @@ router.put('/:id', async (req, res) => {
 
   const { username, first_name, last_name, email, password, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
 
-  if (![username, first_name, last_name, email, password].every(Boolean)) {
+  if ([username, first_name, last_name, email, password].every(Boolean)) {
     return res.status(400).json({ message: 'Nome de usuário, nome, sobrenome, email e senha são obrigatórios' });
   }else if (username.length > 10) {
     return res.status(400).json({ message: 'Seu nome de usuário ultrapassou o limite de 10 caracteres.' });
@@ -128,7 +128,7 @@ router.put('/:id', async (req, res) => {
   try {
     await connection.query('UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, password = ?, age = ?, date_of_birth = ?, phone = ?, gender = ? WHERE id = ?', [username, first_name, last_name, email, password, age, date_of_birth, phone, gender, id]);
 
-    await connection.query('UPDATE addresses SET street = ?, city = ?, state = ?, postal_code = ?, country = ? WHERE user_id = ?', [street, city, state, postal_code, country, id]);
+    await connection.query('UPDATE address SET street = ?, city = ?, state = ?, postal_code = ?, country = ? WHERE user_id = ?', [street, city, state, postal_code, country, id]);
 
     await connection.query('UPDATE social_info SET profile_picture = ?, bio = ?, website = ?, occupation = ?, company = ?, skill = ?, language = ? WHERE user_id = ?', [profile_picture, bio, website, occupation, company, skill, language, id]);
 
@@ -151,7 +151,19 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   const connection = await pool.getConnection();
+  
   try {
+    const sql = 'SELECT * FROM users WHERE id = ?';
+
+    const [results] = await connection.query(sql, [id]);
+    if (results.length > 0) {
+      await connection.query('DELETE FROM users WHERE id = ?', [id]);
+      return res.json({ message: 'Usuário deletado com sucesso' });
+    } else {
+      console.log('O usuário não existe.');
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
     // Exclui o usuário e os registros associados na tabela de endereços de forma automática
     await connection.query('DELETE FROM users WHERE id = ?', [id]);
     return res.json({ message: 'Usuário deletado com sucesso' });

@@ -1,46 +1,37 @@
-// Importa o módulo express para criação de um servidor web.
-const express = require('express');
 
-//cors 
-const cors = require('cors')
+const express = require('express'); // Importa o módulo express para criação de um servidor web.
+const userRoutes = require('./controllers/usersController'); // Importa as rotas relacionadas aos usuários.
+const connect = require('./database/connect'); // Importa a função de conexão com o banco de dados.
+const cors = require('cors'); //cors 
+require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env.
 
-// Ou permitir apenas uma origem específica
-// app.use(cors({ origin: 'http://localhost:5500' }));
-
-
-// Importa a função de conexão com o banco de dados.
-const connect = require('./database/connect');
-
-// Importa as rotas relacionadas aos usuários.
-const userRoutes = require('./controllers/usersController');
-
-// Carrega as variáveis de ambiente do arquivo .env.
-require('dotenv').config();
 
 // Cria uma instância do servidor Express.
 const server = express();
 
-// Permitir uma origem específica e métodos HTTP específicos
-// server.use(cors({ 
-//     origin: 'http://localhost:5500',
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'] 
-// })); 
+/**
+* Permitir uma origem específica e métodos HTTP específicos
+*    server.use(cors({ 
+*    origin: 'http://localhost:5500',
+*    methods: ['GET', 'POST', 'PUT', 'DELETE'] 
+*
+* Ou permitir apenas uma origem específica
+*    server.use(cors({ origin: 'http://localhost:5500' }));
+*  
+*/
 
-// Permitir todas as origens (não recomendado para produção)
-server.use(cors()); 
+server.use(cors()); // Permitir todas as origens (não recomendado para produção)
 
-// Middleware para analisar o corpo das requisições como JSON.
-server.use(express.json());
+server.use(express.json()); // Middleware para analisar o corpo das requisições como JSON.
 
-// Define as rotas relacionadas aos usuários.
-server.use('/users', userRoutes);
+server.use('/users', userRoutes); // Define as rotas relacionadas aos usuários.
 
-server.use(express.static('public'));
+server.use(express.static('public')); // Estabelece a conexão com o banco de dados.
 
-// Estabelece a conexão com o banco de dados.
-connect();
-
-// Inicia o servidor Express, ouvindo na porta definida na variável de ambiente PORT.
 server.listen(process.env.PORT, () => {
     console.log('Servidor rodando na porta ' + process.env.PORT);
-});
+}); // Inicia o servidor Express, ouvindo na porta definida na variável de ambiente PORT.
+
+connect(); // Inicia o banco de dados
+
+

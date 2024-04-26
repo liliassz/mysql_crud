@@ -1,6 +1,6 @@
 CREATE SCHEMA IF NOT EXISTS `usuarios` DEFAULT CHARACTER SET utf8 ;
 
-CREATE TABLE `user` (
+CREATE TABLE `users` (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(10) UNIQUE,
     first_name VARCHAR(10),
@@ -22,7 +22,7 @@ CREATE TABLE `address` (
     state VARCHAR(2),
     postal_code VARCHAR(10),
     country VARCHAR(50),
-    FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES `users`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `social_info` (
@@ -35,7 +35,7 @@ CREATE TABLE `social_info` (
     company VARCHAR(255),
     skill VARCHAR(255),
     language VARCHAR(255),
-    FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES `users`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE VIEW `user_full_details` AS
@@ -66,7 +66,7 @@ SELECT
     s.skill,
     s.language
 FROM 
-    `user` u
+    `users` u
 LEFT JOIN 
     `address` a ON u.id = a.user_id
 LEFT JOIN 

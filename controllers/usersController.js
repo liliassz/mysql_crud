@@ -6,31 +6,15 @@ router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const connection = await pool.getConnection();
   try {
-    const [users] = await connection.query('SELECT * FROM users WHERE id = ?', [id]);
+    const [users] = await connection.query('SELECT * FROM user_full_details WHERE id = ?', [id]);
 
     if (users.length === 0) {
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
 
-    const completeUsers = [];
-
-    for (const user of users) {
-      const userId = user.id;
-
-      const [address] = await connection.query('SELECT * FROM address WHERE user_id = ?', [userId]);
-
-      const [socialInfo] = await connection.query('SELECT * FROM social_info WHERE user_id = ?', [userId]);
-
-      const completeUser = {
-        ...user, 
-        address: address[0] || {},
-        socialInfo: socialInfo[0] || {}, 
-      };
-
-      completeUsers.push(completeUser);
-    }
-
-    return res.json(completeUsers[0]);
+    return res.json(users[0]);
+  } catch {
+    return res.status(500).json({ message: 'Erro ao buscar usuários', error: error.message });
   } finally {
     connection.release();
   }
@@ -39,27 +23,8 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
   const connection = await pool.getConnection();
   try {
-    const [users] = await connection.query('SELECT * FROM users');
-
-    const completeUsers = [];
-
-    for (const user of users) {
-      const userId = user.id;
-
-      const [address] = await connection.query('SELECT * FROM address WHERE user_id = ?', [userId]);
-
-      const [socialInfo] = await connection.query('SELECT * FROM social_info WHERE user_id = ?', [userId]);
-
-      const completeUser = {
-        ...user, 
-        address: address[0] || {},
-        socialInfo: socialInfo[0] || {}, 
-      };
-
-      completeUsers.push(completeUser);
-    }
-
-    return res.json(completeUsers);
+    const [users] = await connection.query('SELECT * FROM user_full_details');
+    return res.json(users);
   } catch (error) {
     return res.status(500).json({ message: 'Erro ao buscar usuários', error: error.message });
   } finally {

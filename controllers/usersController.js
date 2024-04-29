@@ -1,6 +1,7 @@
 const express = require('express'); // Importa o módulo 'express', que é um framework web para Node.js.
 const pool = require('../config/dbConfig'); // Importa o pool de conexão com o banco de dados configurado.
 const router = express.Router(); // Cria uma instância do roteador do Express.
+const { verificateUser } = require('../utils/funcoes/verificacao')
 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
@@ -36,14 +37,9 @@ router.post('/', async (req, res) => {
   const { username, first_name, last_name, email, password, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
   const connection = await pool.getConnection();
 
-  if (![username, first_name, last_name, email, password].every(Boolean)) {
-    return res.status(400).json({ message: 'Nome de usuário, nome, sobrenome, email e senha são obrigatórios' });
-  }else if (username.length > 10) {
-    return res.status(400).json({ message: 'Seu nome de usuário ultrapassou o limite de 10 caracteres.' });
-  } else if (first_name.length > 10) {
-    return res.status(400).json({ message: 'Seu nome ultrapassou o limite de 10 caracteres.' });
-  } else if (last_name.length > 10) {
-    return res.status(400).json({ message: 'Seu sobrenome ultrapassou o limite de 10 caracteres.' });
+  const verification = verificateUser(req.body);
+  if (!verification.isValid) {
+    return res.status(400).json({ message: verification.message });
   }
 
   try {
@@ -79,14 +75,9 @@ router.put('/:id', async (req, res) => {
 
   const { username, first_name, last_name, email, password, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
 
-  if ([username, first_name, last_name, email, password].every(Boolean)) {
-    return res.status(400).json({ message: 'Nome de usuário, nome, sobrenome, email e senha são obrigatórios' });
-  }else if (username.length > 10) {
-    return res.status(400).json({ message: 'Seu nome de usuário ultrapassou o limite de 10 caracteres.' });
-  } else if (first_name.length > 10) {
-    return res.status(400).json({ message: 'Seu nome ultrapassou o limite de 10 caracteres.' });
-  } else if (last_name.length > 10) {
-    return res.status(400).json({ message: 'Seu sobrenome ultrapassou o limite de 10 caracteres.' });
+  const verification = verificateUser(req.body);
+  if (!verification.isValid) {
+    return res.status(400).json({ message: verification.message });
   }
 
   const connection = await pool.getConnection();
@@ -98,12 +89,12 @@ router.put('/:id', async (req, res) => {
     await connection.query('UPDATE social_info SET profile_picture = ?, bio = ?, website = ?, occupation = ?, company = ?, skill = ?, language = ? WHERE user_id = ?', [profile_picture, bio, website, occupation, company, skill, language, id]);
 
     return res.json({ message: 'Usuário atualizado com sucesso' });
-    
+
   } catch (error) {
     console.error(error)
     if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.username')) {
       return res.status(400).json({ message: 'Nome de usuário já cadastrado.' });
-    }else if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.email')) {
+    } else if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.email')) {
       return res.status(400).json({ message: 'Email já cadastrado.' });
     }
 
@@ -116,7 +107,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   const connection = await pool.getConnection();
-  
+
   try {
     const sql = 'SELECT * FROM users WHERE id = ?';
 

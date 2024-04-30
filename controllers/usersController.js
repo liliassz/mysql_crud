@@ -1,7 +1,8 @@
 const express = require('express'); // Importa o módulo 'express', que é um framework web para Node.js.
 const pool = require('../config/dbConfig'); // Importa o pool de conexão com o banco de dados configurado.
 const router = express.Router(); // Cria uma instância do roteador do Express.
-const { verificateUser } = require('../utils/funcoes/verificacao')
+const { verificateUser } = require('../utils/funcoes/verificacao');
+const { hash } = require('bcrypt');
 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
@@ -36,14 +37,16 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { username, first_name, last_name, email, password, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
   const connection = await pool.getConnection();
-
+  
   const verification = verificateUser(req.body);
   if (!verification.isValid) {
     return res.status(400).json({ message: verification.message });
   }
 
+  const hashedPassword = await hash(password, 10)
+
   try {
-    await connection.query('INSERT INTO users (username, first_name, last_name, email, password, age, phone, gender, date_of_birth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, first_name, last_name, email, password, age, phone, gender, date_of_birth]);
+    await connection.query('INSERT INTO users (username, first_name, last_name, email, password, age, phone, gender, date_of_birth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, first_name, last_name, email, hashedPassword, age, phone, gender, date_of_birth]);
     const [result] = await connection.query('SELECT LAST_INSERT_ID() AS id');
     const userId = result[0].id;
 

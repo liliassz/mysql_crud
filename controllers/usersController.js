@@ -1,8 +1,9 @@
 const express = require('express'); // Importa o módulo 'express', que é um framework web para Node.js.
 const pool = require('../config/dbConfig'); // Importa o pool de conexão com o banco de dados configurado.
+const { verificateUser } = require('../middlewares/verificacao');
+const hashPassword = require('../middlewares/hashPassword');
+
 const router = express.Router(); // Cria uma instância do roteador do Express.
-const { verificateUser } = require('../utils/funcoes/verificacao');
-const { hash } = require('bcrypt');
 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
@@ -34,8 +35,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
-  const { username, first_name, last_name, email, password, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
+router.post('/', hashPassword, async (req, res) => {
+  const { username, first_name, last_name, email, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
   const connection = await pool.getConnection();
   
   const verification = verificateUser(req.body);
@@ -43,7 +44,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: verification.message });
   }
 
-  const hashedPassword = await hash(password, 10)
+  const hashedPassword = req.body.hashedPassword;
 
   try {
     await connection.query('INSERT INTO users (username, first_name, last_name, email, password, age, phone, gender, date_of_birth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, first_name, last_name, email, hashedPassword, age, phone, gender, date_of_birth]);

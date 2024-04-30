@@ -26,7 +26,7 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
   const connection = await pool.getConnection();
   try {
-    const [users] = await connection.query('SELECT * FROM users');
+    const [users] = await connection.query('SELECT * FROM user_full_details');
     return res.json(users);
   } catch (error) {
     return res.status(500).json({ message: 'Erro ao buscar usuários', error: error.message });
@@ -38,7 +38,6 @@ router.get('/', async (req, res) => {
 router.post('/', hashPassword, validateUser, async (req, res) => {
   const { username, first_name, last_name, email, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
   const connection = await pool.getConnection();
-
   const hashedPassword = req.body.hashedPassword;
 
   try {
@@ -70,19 +69,14 @@ router.post('/', hashPassword, validateUser, async (req, res) => {
 });
 
 router.put('/:id', hashPassword, validateUser, async (req, res) => {
-  const { id } = req.params;
-
   const { username, first_name, last_name, email, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
-
   const connection = await pool.getConnection();
-
   const hashedPassword = req.body.hashedPassword;
+  const { id } = req.params;
 
   try {
     await connection.query('UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, password = ?, age = ?, date_of_birth = ?, phone = ?, gender = ? WHERE id = ?', [username, first_name, last_name, email, hashedPassword, age, date_of_birth, phone, gender, id]);
-
     await connection.query('UPDATE address SET street = ?, city = ?, state = ?, postal_code = ?, country = ? WHERE user_id = ?', [street, city, state, postal_code, country, id]);
-
     await connection.query('UPDATE social_info SET profile_picture = ?, bio = ?, website = ?, occupation = ?, company = ?, skill = ?, language = ? WHERE user_id = ?', [profile_picture, bio, website, occupation, company, skill, language, id]);
 
     return res.json({ message: 'Usuário atualizado com sucesso' });
@@ -117,7 +111,6 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
 
-    // Exclui o usuário e os registros associados na tabela de endereços de forma automática
     await connection.query('DELETE FROM users WHERE id = ?', [id]);
     return res.json({ message: 'Usuário deletado com sucesso' });
   } catch (error) {

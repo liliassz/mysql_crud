@@ -1,6 +1,6 @@
 const express = require('express'); // Importa o módulo 'express', que é um framework web para Node.js.
 const pool = require('../config/dbConfig'); // Importa o pool de conexão com o banco de dados configurado.
-const { verificateUser } = require('../middlewares/verificacao');
+const validateUser = require('../middlewares/verificacao');
 const hashPassword = require('../middlewares/hashPassword');
 
 const router = express.Router(); // Cria uma instância do roteador do Express.
@@ -26,7 +26,7 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
   const connection = await pool.getConnection();
   try {
-    const [users] = await connection.query('SELECT * FROM user_full_details');
+    const [users] = await connection.query('SELECT * FROM users');
     return res.json(users);
   } catch (error) {
     return res.status(500).json({ message: 'Erro ao buscar usuários', error: error.message });
@@ -35,14 +35,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', hashPassword, async (req, res) => {
+router.post('/', hashPassword, validateUser, async (req, res) => {
   const { username, first_name, last_name, email, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
   const connection = await pool.getConnection();
-  
-  const verification = verificateUser(req.body);
-  if (!verification.isValid) {
-    return res.status(400).json({ message: verification.message });
-  }
 
   const hashedPassword = req.body.hashedPassword;
 
@@ -74,19 +69,17 @@ router.post('/', hashPassword, async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', hashPassword, validateUser, async (req, res) => {
   const { id } = req.params;
 
-  const { username, first_name, last_name, email, password, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
-
-  const verification = verificateUser(req.body);
-  if (!verification.isValid) {
-    return res.status(400).json({ message: verification.message });
-  }
+  const { username, first_name, last_name, email, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
 
   const connection = await pool.getConnection();
+
+  const hashedPassword = req.body.hashedPassword;
+
   try {
-    await connection.query('UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, password = ?, age = ?, date_of_birth = ?, phone = ?, gender = ? WHERE id = ?', [username, first_name, last_name, email, password, age, date_of_birth, phone, gender, id]);
+    await connection.query('UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, password = ?, age = ?, date_of_birth = ?, phone = ?, gender = ? WHERE id = ?', [username, first_name, last_name, email, hashedPassword, age, date_of_birth, phone, gender, id]);
 
     await connection.query('UPDATE address SET street = ?, city = ?, state = ?, postal_code = ?, country = ? WHERE user_id = ?', [street, city, state, postal_code, country, id]);
 

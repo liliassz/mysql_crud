@@ -68,7 +68,7 @@ router.post('/', hashPassword, validateUser, async (req, res) => {
   }
 });
 
-router.put('/:id', hashPassword, validateUser, async (req, res) => {
+router.put('/:id', hashPassword, async (req, res) => {
   const { username, first_name, last_name, email, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
   const connection = await pool.getConnection();
   const hashedPassword = req.body.hashedPassword;

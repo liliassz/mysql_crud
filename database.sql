@@ -47,8 +47,7 @@ CREATE VIEW `user_full_details` AS
 SELECT 
     u.id,
     u.username,
-    u.first_name,
-    u.last_name,
+    u.name,
     u.email,
     u.password,
     u.age,

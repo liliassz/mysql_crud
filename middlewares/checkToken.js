@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 function checkToken(req, res, next) {
 
     const authHeader = req.headers['authorization']
@@ -9,10 +11,11 @@ function checkToken(req, res, next) {
 
     try {
 
-        const secret = process.env.JWT_SECRET
-        jwt.verify(token, secret)
-
-        next()
+        const secret = process.env.JWT_SECRET;
+        const decoded = jwt.verify(token, secret);
+        console.log(decoded)
+        req.userId = decoded.id; 
+        next();
 
     } catch {
         res.status(400).json({ msg: 'Token invalido'})

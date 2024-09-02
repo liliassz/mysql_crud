@@ -1,6 +1,9 @@
 
 const express = require('express'); // Importa o módulo express para criação de um servidor web.
 const userRoutes = require('./controllers/usersController'); // Importa as rotas relacionadas aos usuários.
+const userRegister  = require('./controllers/userRegister'); // Importa as rotas relacionadas aos usuários.
+const protectedRoutes  = require('./controllers/protectedRoutes'); // Importa as rotas relacionadas aos usuários.
+const userLogin = require('./controllers/userLogin'); // Importa as rotas relacionadas aos usuários.
 const connect = require('./database/connect'); // Importa a função de conexão com o banco de dados.
 const cors = require('cors'); //cors 
 require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env.
@@ -23,7 +26,11 @@ server.use(cors()); // Permitir todas as origens (não recomendado para produç�
 
 server.use(express.json()); // Middleware para analisar o corpo das requisições como JSON.
 
-server.use('/users', userRoutes); // Define as rotas relacionadas aos usuários.
+server.use('/users', userRoutes, protectedRoutes); // rotas relacionadas aos usuários.
+
+server.use('/auth', userRegister); // Rota de registro
+
+server.use('/auth', userLogin); // Rota de login
 
 server.use(express.static('public')); // Estabelece a conexão com o banco de dados.
 

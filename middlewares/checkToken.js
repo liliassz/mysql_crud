@@ -13,7 +13,6 @@ function checkToken(req, res, next) {
 
         const secret = process.env.JWT_SECRET;
         const decoded = jwt.verify(token, secret);
-        console.log(decoded)
         req.userId = decoded.id; 
         next();
 

@@ -107,7 +107,6 @@ router.delete('/:id', async (req, res) => {
       await connection.query('DELETE FROM users WHERE id = ?', [id]);
       return res.json({ message: 'Usuário deletado com sucesso' });
     } else {
-      console.log('O usuário não existe.');
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
 

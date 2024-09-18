@@ -127,27 +127,31 @@ router.post('/', hashPassword, async (req, res) => {
 });
 
 router.put('/:id', hashPassword, async (req, res) => {
-  const { username, first_name, last_name, email, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
+  const { username, email, hashedPassword, first_name, last_name} = req.body;
   const connection = await pool.getConnection();
-  const hashedPassword = req.body.hashedPassword;
   const { id } = req.params;
 
   try {
-    await connection.query('UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, password = ?, age = ?, date_of_birth = ?, phone = ?, gender = ? WHERE id = ?', [username, first_name, last_name, email, hashedPassword, age, date_of_birth, phone, gender, id]);
-    await connection.query('UPDATE address SET street = ?, city = ?, state = ?, postal_code = ?, country = ? WHERE user_id = ?', [street, city, state, postal_code, country, id]);
-    await connection.query('UPDATE social_info SET profile_picture = ?, bio = ?, website = ?, occupation = ?, company = ?, skill = ?, language = ? WHERE user_id = ?', [profile_picture, bio, website, occupation, company, skill, language, id]);
+    // Iniciando uma transição para garantir que todos os dados sejam enviados com segurança e caso de erro da um 'rollback'
+    await connection.beginTransaction();
 
-    return res.json({ message: 'Usuário atualizado com sucesso' });
+    await connection.query('UPDATE users SET username = ?, email = ?, password_hash = ? WHERE id = ?', [username, email, hashedPassword, id]);
+    await connection.query('UPDATE personal_info SET first_name = ?, last_name = ? WHERE user_id = ?', [first_name, last_name, id]);
 
+    // Confirmar transação caso todos os dados forem enviados com sucesso
+    await connection.commit();
+
+    return res.status(201).json({ message: 'Usuário atualizado com sucesso' });
   } catch (error) {
-    console.error(error)
-    if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.username')) {
-      return res.status(400).json({ message: 'Nome de usuário já cadastrado.' });
-    } else if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.email')) {
-      return res.status(400).json({ message: 'Email já cadastrado.' });
-    }
+    // Reverte a transação em caso de erro
+    await connection.rollback();  
 
-    return res.status(500).json({ message: 'Erro ao atualizar usuário', error: error.message });
+    // validação para identificar o erro
+    if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.username')) { return res.status(400).json({ message: 'Nome de usuário já cadastrado.' });}
+    if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.email')) { return res.status(400).json({ message: 'Email já cadastrado.' });}
+    
+    // caso o erro não esteja na validação, ele retorna o erro encontrado
+    return res.status(500).json({ message: 'Erro ao atualizar o usuário', error: error.message });
   } finally {
     connection.release();
   }

@@ -1,5 +1,4 @@
-const { hash } = require('bcrypt');
-
+const { hash,genSalt } = require('bcrypt');
 /**
  * Middleware para criar um hash da senha do usuário.
  * @param {object} req - Objeto de requisição Express.
@@ -9,7 +8,8 @@ const { hash } = require('bcrypt');
  */
 async function hashPassword(req, res, next) {
     try {
-        req.body.hashedPassword = await hash(req.body.password_hash, 10);
+        const salt = await genSalt(12);
+        req.body.hashedPassword = await hash(req.body.password_hash, salt);
         next();
     } catch (error) {
         console.error("Erro ao criptografar a senha:", error);

@@ -4,20 +4,67 @@ const validateUser = require('../middlewares/verificacao');
 const hashPassword = require('../middlewares/hashPassword');
 
 const router = express.Router(); // Cria uma instância do roteador do Express.
-
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const connection = await pool.getConnection();
   try {
-    const [users] = await connection.query('SELECT * FROM user_full_details WHERE id = ?', [id]);
+    // Consulta para obter informações do usuário
+    const [user] = await connection.query('SELECT * FROM users WHERE id = ?', [id]);
 
-    if (users.length === 0) {
+    // Verificação para ver se o usuario existe
+    if (user.length === 0) {
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
 
-    return res.json(users[0]);
-  } catch {
-    return res.status(500).json({ message: 'Erro ao buscar usuários', error: error.message });
+    // Consulta para obter informações pessoais do usuário
+    const [personalInfo] = await connection.query('SELECT * FROM personal_info WHERE user_id = ?', [id]);
+
+    // Consulta para obter endereços do usuário
+    const [addresses] = await connection.query('SELECT * FROM address WHERE user_id = ?', [id]);
+
+    // Consulta para obter informações de contato do usuário
+    const [contactInfo] = await connection.query('SELECT * FROM contact_info WHERE user_id = ?', [id]);
+
+    // Consulta para obter preferências do usuário
+    const [preferences] = await connection.query('SELECT * FROM preferences WHERE user_id = ?', [id]);
+
+    // Consulta para obter contas de redes sociais do usuário
+    const [socialAccounts] = await connection.query('SELECT * FROM social_accounts WHERE user_id = ?', [id]);
+
+    // Consulta para obter métodos de pagamento do usuário
+    const [paymentMethods] = await connection.query('SELECT * FROM payment_methods WHERE user_id = ?', [id]);
+
+    // Consulta para obter notificações do usuário
+    const [notifications] = await connection.query('SELECT * FROM notifications WHERE user_id = ?', [id]);
+
+    // Consulta para obter amigos do usuário
+    const [friends] = await connection.query('SELECT * FROM friends WHERE user_id = ? OR friend_id = ?', [id, id]);
+
+    // Consulta para obter conquistas do usuário
+    const [achievements] = await connection.query('SELECT * FROM achievements WHERE user_id = ?', [id]);
+
+    // Consulta para obter histórico de login do usuário
+    const [loginHistory] = await connection.query('SELECT * FROM login_history WHERE user_id = ?', [id]);
+
+    // Consulta para obter tickets de suporte do usuário
+    const [supportTickets] = await connection.query('SELECT * FROM support_tickets WHERE user_id = ?', [id]);
+
+    // Adiciona todas as informações ao objeto do usuário
+    user[0].personal_info = personalInfo[0] || null;
+    user[0].addresses = addresses;
+    user[0].contact_info = contactInfo[0] || null;
+    user[0].preferences = preferences[0] || null;
+    user[0].social_accounts = socialAccounts;
+    user[0].payment_methods = paymentMethods;
+    user[0].notifications = notifications;
+    user[0].friends = friends;
+    user[0].achievements = achievements;
+    user[0].login_history = loginHistory;
+    user[0].support_tickets = supportTickets;
+
+    return res.json(user[0]);
+  } catch (error) {
+    return res.status(500).json({ message: 'Erro ao buscar usuário e dados relacionados', error: error.message });
   } finally {
     connection.release();
   }

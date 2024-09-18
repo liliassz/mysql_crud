@@ -9,7 +9,7 @@ const { hash } = require('bcrypt');
  */
 async function hashPassword(req, res, next) {
     try {
-        req.body.hashedPassword = await hash(req.body.password, 10);
+        req.body.hashedPassword = await hash(req.body.password_hash, 10);
         next();
     } catch (error) {
         console.error("Erro ao criptografar a senha:", error);

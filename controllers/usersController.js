@@ -82,33 +82,44 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', hashPassword, validateUser, async (req, res) => {
-  const { username, first_name, last_name, email, age, date_of_birth, phone, gender, profile_picture, bio, city, street, postal_code, state, country, occupation, website, skill, company, language } = req.body;
+router.post('/', hashPassword, async (req, res) => {
+  const { username, email, password_hash, hashedPassword, first_name, last_name} = req.body;
   const connection = await pool.getConnection();
-  const hashedPassword = req.body.hashedPassword;
 
+
+  // Validação dos dados 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!first_name) {return res.status(400).json({ message: 'O nome é obrigatório.'});}
+  if (!last_name) {return res.status(400).json({ message: 'O sobrenome é obrigatório.'});}
+  if (!username) {return res.status(400).json({ message: 'O nome de usuário  é obrigatório.'});}
+  if (!email) {return res.status(400).json({ message: 'O email é obrigatório.'});}
+  if (!emailRegex.test(email)) {return res.status(400).json({ message: 'Formato de email inválido.' });}
+  if (!hashedPassword) {return res.status(400).json({ message: 'A senha é obrigatória.'});}
+  if (password_hash.length < 8) {return res.status(400).json({ message: 'A senha precisa ter no minimo 8 caracteres.'}); }
+  
+  
   try {
-    await connection.query('INSERT INTO users (username, first_name, last_name, email, password, age, phone, gender, date_of_birth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, first_name, last_name, email, hashedPassword, age, phone, gender, date_of_birth]);
-    const [result] = await connection.query('SELECT LAST_INSERT_ID() AS id');
-    const userId = result[0].id;
+    // Iniciando uma transição para garantir que todos os dados sejam enviados com segurança e caso de erro da um 'rollback'
+    await connection.beginTransaction();
 
-    const addressData = { user_id: userId, city, street, postal_code, state, country };
-    const socialInfoData = { user_id: userId, profile_picture, bio, website, occupation, company, skill, language };
+    const [userResult] = await connection.query('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', [username, email, password_hash]);
+    const userId = userResult.insertId; // Pegar o ID do usuário recém-criado
+    await connection.query( 'INSERT INTO personal_info (user_id, first_name, last_name) VALUES (?, ?, ?)', [userId, first_name, last_name]);
 
-    await Promise.all([
-      connection.query('INSERT INTO address SET ?', addressData),
-      connection.query('INSERT INTO social_info SET ?', socialInfoData)
-    ]);
+    // Confirmar transação caso todos os dados forem enviados com sucesso
+    await connection.commit();
 
     return res.status(201).json({ message: 'Usuário criado com sucesso' });
   } catch (error) {
-    if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.username')) {
-      return res.status(400).json({ message: 'Nome de usuário já cadastrado.' });
-    }
-    if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.email')) {
-      return res.status(400).json({ message: 'Email já cadastrado.' });
-    }
+    // Reverte a transação em caso de erro
+    await connection.rollback();  
 
+    // validação para identificar o erro
+    if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.username')) { return res.status(400).json({ message: 'Nome de usuário já cadastrado.' });}
+    if (error.sqlMessage.includes('Duplicate entry') && error.sqlMessage.includes('users.email')) { return res.status(400).json({ message: 'Email já cadastrado.' });}
+    
+    // caso o erro não esteja na validação, ele retorna o erro encontrado
     return res.status(500).json({ message: 'Erro ao criar usuário', error: error.message });
   } finally {
     connection.release();

@@ -73,7 +73,7 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
   const connection = await pool.getConnection();
   try {
-    const [users] = await connection.query('SELECT * FROM user_full_details');
+    const [users] = await connection.query('SELECT * FROM view_allUsers');
     return res.json(users);
   } catch (error) {
     return res.status(500).json({ message: 'Erro ao buscar usuários', error: error.message });

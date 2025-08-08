@@ -19,6 +19,8 @@ Thumbs.db
 # Arquivos específicos de IDEs e editores
 .vscode/
 .idea/
+.git/
+.vs/
 
 # Dependências geradas
 /node_modules

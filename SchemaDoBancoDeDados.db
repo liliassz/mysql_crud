@@ -1,0 +1,75 @@
+-- Cria o schema e já define UTF8MB4 como padrão
+CREATE SCHEMA IF NOT EXISTS `usuarios` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE `usuarios`;
+
+-- Tabela users
+CREATE TABLE `users` (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash CHAR(60) NOT NULL,
+    age INT CHECK (age >= 0),
+    phone VARCHAR(20),
+    gender VARCHAR(20),
+    date_of_birth DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_username (username),
+    INDEX idx_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabela address
+CREATE TABLE `address` (
+    user_id INT PRIMARY KEY,
+    street VARCHAR(255),
+    city VARCHAR(255),
+    state VARCHAR(10),
+    postal_code VARCHAR(20),
+    country VARCHAR(50),
+    FOREIGN KEY (user_id) REFERENCES `users`(id) 
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabela social_info
+CREATE TABLE `social_info` (
+    user_id INT PRIMARY KEY,
+    profile_picture VARCHAR(255),
+    bio TEXT,
+    status ENUM('ativo', 'desativado') DEFAULT 'ativo',
+    website VARCHAR(255),
+    occupation VARCHAR(255),
+    company VARCHAR(255),
+    skill VARCHAR(255),
+    language VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES `users`(id) 
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- View completa
+CREATE VIEW `user_full_details` AS
+SELECT 
+    u.*,
+    a.street,
+    a.city,
+    a.state,
+    a.postal_code,
+    a.country,
+    s.profile_picture,
+    s.bio,
+    s.status,
+    s.website,
+    s.occupation,
+    s.company,
+    s.skill,
+    s.language
+FROM 
+    `users` u
+LEFT JOIN 
+    `address` a ON u.id = a.user_id
+LEFT JOIN 
+    `social_info` s ON u.id = s.user_id;

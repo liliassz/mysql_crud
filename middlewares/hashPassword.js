@@ -1,4 +1,4 @@
-const { hash,genSalt } = require('bcrypt');
+const { hash,genSalt } = require('bcryptjs');
 /**
  * Middleware para criar um hash da senha do usuário.
  * @param {object} req - Objeto de requisição Express.

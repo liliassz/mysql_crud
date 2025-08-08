@@ -1,6 +1,5 @@
 const express = require('express'); // Importa o módulo 'express', que é um framework web para Node.js.
 const pool = require('../config/dbConfig'); // Importa o pool de conexão com o banco de dados configurado.
-const validateUser = require('../middlewares/verificacao');
 const hashPassword = require('../middlewares/hashPassword');
 
 const router = express.Router(); // Cria uma instância do roteador do Express.
